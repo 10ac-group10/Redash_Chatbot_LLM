@@ -1,8 +1,10 @@
+require('dotenv').config();
 import React, { useRef, useCallback } from "react";
 import PropTypes from "prop-types";
 import DynamicComponent from "@/components/DynamicComponent";
 import DesktopNavbar from "./DesktopNavbar";
 import MobileNavbar from "./MobileNavbar";
+import ChatBox from "@/components/chat/ChatBox";
 
 import "./index.less";
 
@@ -19,6 +21,11 @@ export default function ApplicationLayout({ children }) {
             <DesktopNavbar />
           </DynamicComponent>
         </div>
+        <div>
+             <DynamicComponent name="ApplicationDesktopChat">
+               <ChatBox/>
+             </DynamicComponent>
+           </div>
         <div className="application-layout-content">
           <nav className="application-layout-top-menu" ref={mobileNavbarContainerRef}>
             <DynamicComponent name="ApplicationMobileNavbar" getPopupContainer={getMobileNavbarPopupContainer}>
