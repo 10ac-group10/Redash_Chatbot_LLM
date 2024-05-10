@@ -4,6 +4,10 @@ import DynamicComponent from "@/components/DynamicComponent";
 import DesktopNavbar from "./DesktopNavbar";
 import MobileNavbar from "./MobileNavbar";
 
+// Added for chatbot
+import ChatBox from "@/components/chat/ChatBox";
+//
+
 import "./index.less";
 
 export default function ApplicationLayout({ children }) {
@@ -11,25 +15,30 @@ export default function ApplicationLayout({ children }) {
 
   const getMobileNavbarPopupContainer = useCallback(() => mobileNavbarContainerRef.current, []);
 
-  return (
-    <React.Fragment>
-      <DynamicComponent name="ApplicationWrapper">
-        <div className="application-layout-side-menu">
-          <DynamicComponent name="ApplicationDesktopNavbar">
-            <DesktopNavbar />
-          </DynamicComponent>
-        </div>
-        <div className="application-layout-content">
-          <nav className="application-layout-top-menu" ref={mobileNavbarContainerRef}>
-            <DynamicComponent name="ApplicationMobileNavbar" getPopupContainer={getMobileNavbarPopupContainer}>
-              <MobileNavbar getPopupContainer={getMobileNavbarPopupContainer} />
-            </DynamicComponent>
-          </nav>
-          {children}
-        </div>
-      </DynamicComponent>
-    </React.Fragment>
-  );
+ return (
+       <React.Fragment>
+         <DynamicComponent name="ApplicationWrapper">
+           <div className="application-layout-side-menu">
+             <DynamicComponent name="ApplicationDesktopNavbar">
+               <DesktopNavbar />
+             </DynamicComponent>
+           </div>
+           <div>
+             <DynamicComponent name="ApplicationDesktopChat">
+               <ChatBox/>
+             </DynamicComponent>
+           </div>
+           <div className="application-layout-content">
+             <nav className="application-layout-top-menu" ref={mobileNavbarContainerRef}>
+               <DynamicComponent name="ApplicationMobileNavbar" getPopupContainer={getMobileNavbarPopupContainer}>
+                 <MobileNavbar getPopupContainer={getMobileNavbarPopupContainer} />
+               </DynamicComponent>
+             </nav>
+             {children}
+           </div>
+         </DynamicComponent>
+       </React.Fragment>
+     );
 }
 
 ApplicationLayout.propTypes = {

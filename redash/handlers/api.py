@@ -1,11 +1,13 @@
 from flask import make_response
 from flask_restful import Api
 
-from redash.handlers.base import BaseResource
-# from . import routes
-from redash.permissions import require_permission
-# from redash.langchain_integration import process_nl_query
 from werkzeug.wrappers import Response
+
+### Added for chatbot
+from redash.handlers.chat import (
+    ChatResource
+)
+###
 
 from redash.handlers.alerts import (
     AlertListResource,
@@ -109,17 +111,9 @@ class ApiExt(Api):
 
 api = ApiExt()
 
-# redash/handlers/api.py
-
-
-
-# @routes.route('/api/langchain_query', methods=['POST'])
-# @require_permission('execute_query')
-# def langchain_query():
-#     nl_query = request.get_json()['query']
-#     dashboard = process_nl_query(nl_query)
-#     return dashboard
-
+### Added for chatbot
+api.add_org_resource(ChatResource, "/api/chat", endpoint="chat")
+###
 
 @api.representation("application/json")
 def json_representation(data, code, headers=None):
