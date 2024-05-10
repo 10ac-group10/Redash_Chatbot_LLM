@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from redash import settings
