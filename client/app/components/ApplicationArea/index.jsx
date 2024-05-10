@@ -4,6 +4,7 @@ import Router from "./Router";
 import handleNavigationIntent from "./handleNavigationIntent";
 import ErrorMessage from "./ErrorMessage";
 
+
 export default function ApplicationArea() {
   const [currentRoute, setCurrentRoute] = useState(null);
   const [unhandledError, setUnhandledError] = useState(null);
