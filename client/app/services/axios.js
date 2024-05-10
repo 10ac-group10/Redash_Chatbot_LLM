@@ -52,3 +52,9 @@ axios.interceptors.request.use(config => {
 
   return config;
 });
+
+// Langchain integration API
+
+export function sendLangChainQuery(nl_query) {
+  return axios.post('/api/langchain_query', { query: nl_query });
+}

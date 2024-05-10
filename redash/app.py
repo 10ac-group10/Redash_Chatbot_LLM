@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template, request
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from redash import settings
@@ -53,3 +53,4 @@ def create_app():
     tasks.init_app(app)
 
     return app
+
