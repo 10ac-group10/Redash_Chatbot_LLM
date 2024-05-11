@@ -10,7 +10,6 @@ services:
     ports:
       - "${REDASH_PORT:-5001}:5000"
       - "5678:5678"
-      - "5051:5050"
     environment:
       PYTHONUNBUFFERED: 0
   scheduler:
