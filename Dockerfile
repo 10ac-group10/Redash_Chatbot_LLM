@@ -90,7 +90,7 @@ WORKDIR /app
 ### Modified by me
 # Install the required dependencies
 RUN python -m pip install --upgrade pip
-RUN pip install -r requirements.txt
+RUN pip install langchain_openai openai quart
 ###
 
 ENV POETRY_VERSION=1.6.1

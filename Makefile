@@ -1,4 +1,4 @@
-.PHONY: compose_build up test_db create_database create_db clean clean-all down tests lint backend-unit-tests frontend-unit-tests pydeps test build watch start redis-cli bash
+.PHONY: compose_build up test_db create_database create_db clean clean-all down tests lint backend-unit-tests frontend-unit-tests pydeps test build watch start redis-cli bash start-quart run
 
 export COMPOSE_DOCKER_CLI_BUILD=1
 export DOCKER_BUILDKIT=1
@@ -8,11 +8,12 @@ compose_build: .env
 	docker compose build
 
 up:
-	docker compose up -d redis postgres
+	docker compose up -d redis postgres quart_server nginx
 	docker compose exec -u postgres postgres psql postgres --csv \
 		-1tqc "SELECT table_name FROM information_schema.tables WHERE table_name = 'organizations'" 2> /dev/null \
 		| grep -q "organizations" || make create_database
 	docker compose up -d --build
+	#make start-quart
 
 test_db:
 	@for i in `seq 1 5`; do \
@@ -42,6 +43,14 @@ clean-all: clean
 	docker image rm --force \
 		redash/redash:10.1.0.b50633 redis:7-alpine maildev/maildev:latest \
 		pgautoupgrade/pgautoupgrade:15-alpine3.8 pgautoupgrade/pgautoupgrade:latest
+
+run:
+	make down
+	yarn
+	make build
+	make compose_build
+	make up
+
 
 down:
 	docker compose down
@@ -91,3 +100,6 @@ redis-cli:
 
 bash:
 	docker compose run --rm server bash
+
+start-quart:
+	cd redash/api/src && nohup poetry run start > output.log 2>&1 &

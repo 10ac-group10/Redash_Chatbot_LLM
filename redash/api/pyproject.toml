@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "api"
+version = "0.1.0"
+description = ""
+authors = ["Hillary Kipkemoi <tenskap@gmail.com>"]
+readme = "README.md"
+packages = [{include = "api", from = "src"}]
+
+# Making the app easy to run
+[tool.poetry.scripts]
+start = "api:run"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
