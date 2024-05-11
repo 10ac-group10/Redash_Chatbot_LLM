@@ -2,13 +2,18 @@ from quart import Quart, request, jsonify
 
 app = Quart(__name__)
 
+
 def run() -> None:
     app.run(port=5057)
 
+
 @app.route('/echo')
 async def echo():
-    data = await request.get_json()
-    return {"input": data, "extra": True }
+    value = await request.get_json()
+    question = value.get('question')
+    response_data = {"answer": question}
+    return jsonify(response_data), 200
+
 
 @app.route('/echo/chat', methods=['POST'])
 async def handle_user_question():
