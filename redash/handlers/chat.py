@@ -20,7 +20,7 @@ def filter_llm_answer(answer: str) -> str:
     # Get everything after "System:"
     sql_statement = answer[system_index + len("System:"):].strip()
 
-    print(sql_statement)
+    return sql_statement
 
 def get_llm_response(question: str) -> str:
     api_key = os.environ.get("OPENAI_API_KEY")
@@ -28,7 +28,7 @@ def get_llm_response(question: str) -> str:
     # Initialize the OpenAI object
     llm = OpenAI(openai_api_key=api_key)
 
-    # Get the schema of the youtube database
+    # Get the schema of the youtube_data database
     schema = get_schema()
 
     sql_query_example = "SELECT 'date', 'Content_type_Videos', 'Device type_Mobile phone' FROM youtube_chart_data"
@@ -47,7 +47,7 @@ def get_llm_response(question: str) -> str:
     # Invoke the chain to get a response from the model
     answer = llm_chain.invoke(question)
     answer = filter_llm_answer(answer)
-
+    return answer
 
 class ChatResource(BaseResource):
     def post(self):
