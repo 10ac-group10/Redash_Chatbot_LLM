@@ -8,6 +8,7 @@ from langchain_openai import OpenAI
 from langchain_core.prompts import SystemMessagePromptTemplate
 
 from src.utils import get_schema
+from src.decorators import disable_csrf_check
 
 load_dotenv()
 
@@ -50,6 +51,7 @@ def get_llm_response(question: str) -> str:
     return answer
 
 class ChatResource(BaseResource):
+    @disable_csrf_check
     def post(self):
         try:
             value = request.get_json()
