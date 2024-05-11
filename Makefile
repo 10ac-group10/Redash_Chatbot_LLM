@@ -23,7 +23,6 @@ test_db:
 
 create_db: .env
 	docker compose run server create_db
-	docker compose run server pip install openai
 
 create_database: create_db
 
@@ -59,6 +58,7 @@ pydeps:
 	pip3 install wheel
 	pip3 install --upgrade black ruff launchpadlib pip setuptools
 	pip3 install poetry
+	pip3 install langchain_openai
 	poetry install --only main,all_ds,dev
 
 tests:
