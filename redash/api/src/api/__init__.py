@@ -2,8 +2,12 @@ from quart import Quart, request, jsonify
 from dotenv import load_dotenv
 import os
 from openai import OpenAI
+import logging
+from utils.utils import get_schema
 
 app = Quart(__name__)
+
+logging.basicConfig(level=logging.INFO)
 
 load_dotenv()
 
@@ -25,6 +29,8 @@ async def echo():
 @app.route('/api/chat', methods=['POST'])
 async def handle_user_question():
     try:
+        schema = await get_schema()
+        logging.info(schema)
         value = await request.get_json()
         question = value.get('question')
         completion = client.chat.completions.create(
@@ -40,6 +46,7 @@ async def handle_user_question():
         return jsonify(response_data), 200
     except Exception as error:
         print(error)
+        logging.error(error)
         return jsonify({"error": "An error occurred"}), 500
 
 # TODO - Add quart schema
