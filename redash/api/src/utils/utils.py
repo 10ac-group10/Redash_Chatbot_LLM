@@ -4,8 +4,8 @@ import psycopg2
 # TODO - make it reusable by having the table connection details and table name as parameters
 def get_schema():
     # Connect to your database
-    conn = psycopg2.connect(database="youtube_data", user="postgres", password="postgres", host="localhost",
-                            port="15432")
+    conn = psycopg2.connect(database="youtube_data", user="postgres", password="postgres", host="postgres",
+                            port="5432")
     cur = conn.cursor()
 
     # Query the information_schema to get the schema
