@@ -1,24 +1,31 @@
 from quart import Quart, request, jsonify
+from dotenv import load_dotenv
+import os
+from openai import OpenAI
 
 app = Quart(__name__)
 
+load_dotenv()
+
+VARIABLE_KEY = os.environ.get("OPENAI_API_KEY")
 
 def run() -> None:
     app.run(port=5057)
 
+client = OpenAI(api_key=VARIABLE_KEY)
 
-@app.route('/echo')
+@app.route('/api/chat/echo')
 async def echo():
     value = await request.get_json()
     question = value.get('question')
-    response_data = {"answer": question}
+    response_data = {"answer": question }
     return jsonify(response_data), 200
 
 
-@app.route('/echo/chat', methods=['POST'])
+@app.route('/api/chat', methods=['POST'])
 async def handle_user_question():
     try:
-        value = request.get_json()
+        value = await request.get_json()
         question = value.get('question')
         completion = client.chat.completions.create(
             model="gpt-3.5-turbo",
