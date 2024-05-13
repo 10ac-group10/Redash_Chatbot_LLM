@@ -4,14 +4,25 @@ import os
 from openai import OpenAI
 import logging
 from utils.utils import get_schema, get_llm_response
-
-app = Quart(__name__)
-
-logging.basicConfig(level=logging.INFO)
+from redash_toolbelt import Redash
 
 load_dotenv()
 
+# TODO -
+# Get the values of the Keys from the environment variables or the .env file
 VARIABLE_KEY = os.environ.get("OPENAI_API_KEY")
+REDASH_API_KEY = os.environ.get("REDASH_API_KEY")
+
+# Define the URL of the Redash instance - In this case, it is the URL of nginx which is the reverse proxy for the Redash server and quart server
+REDASH_URL = "http://nginx:80"
+
+# Initialize the Redash object that will be used to interact with the Redash API
+redash = Redash(REDASH_URL, REDASH_API_KEY)
+
+app = Quart(__name__)
+
+# Set the logging level to INFO so that we can see the logs in the console
+logging.basicConfig(level=logging.INFO)
 
 def run() -> None:
     app.run(port=5057)
@@ -44,6 +55,13 @@ async def handle_user_question():
         print(error)
         logging.error(error)
         return jsonify({"error": "An error occurred"}), 500
+
+@app.route('/api/chat/redash/data_sources', methods=['get'])
+async def get_queries():
+    logging.info(REDASH_API_KEY)
+    queries = redash.get_data_sources()
+    return jsonify(queries), 200
+
 
 # TODO - Add quart schema
 
