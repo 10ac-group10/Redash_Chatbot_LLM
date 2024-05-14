@@ -91,6 +91,7 @@ services:
       - "5057:5057"
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - REDASH_API_KEY=${REDASH_API_KEY}
     depends_on:
       - server
   nginx:

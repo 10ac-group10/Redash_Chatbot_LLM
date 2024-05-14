@@ -5,10 +5,11 @@ from openai import OpenAI
 import logging
 from utils.utils import get_schema, get_llm_response
 from redash_toolbelt import Redash
+from redashAPI import RedashAPIClient
 
 load_dotenv()
 
-# TODO -
+# TODO - Add the Redash API Key to the .env file whenever the user logs in or creates account
 # Get the values of the Keys from the environment variables or the .env file
 VARIABLE_KEY = os.environ.get("OPENAI_API_KEY")
 REDASH_API_KEY = os.environ.get("REDASH_API_KEY")
@@ -18,6 +19,7 @@ REDASH_URL = "http://nginx:80"
 
 # Initialize the Redash object that will be used to interact with the Redash API
 redash = Redash(REDASH_URL, REDASH_API_KEY)
+RedashApi = RedashAPIClient(REDASH_API_KEY, REDASH_URL)
 
 app = Quart(__name__)
 
@@ -35,7 +37,6 @@ async def echo():
     question = value.get('question')
     response_data = {"answer": question }
     return jsonify(response_data), 200
-
 
 @app.route('/api/chat', methods=['POST'])
 async def handle_user_question():
@@ -62,7 +63,33 @@ async def get_queries():
     queries = redash.get_data_sources()
     return jsonify(queries), 200
 
+# @app.route('/api/chat/query', methods=['post'])
+# async def create_dashboard_with_visualizations():
+#     queries = redash.create_query()
+#     return jsonify(queries), 200
+
+
+@app.route('/api/chat/query_results', methods=['post'])
+async def get_query_results():
+    value = await request.get_json()
+    query = value.get('query')
+
+    query = "SELECT geography_de, 'Device type_Mobile phone', date FROM youtube_data_schema.youtube_chart_data WHERE geography_de > 1"
+
+    # query = redash.get_query(query_id)
+    # Execute the query and get the results
+    results = redash.create_query(query)
+
+    return jsonify(results), 200
+
+@app.route('/api/chat/results', methods=['get'])
+async def get_results():
+    # Execute the query and get the results
+    query = "SELECT geography_de, 'Device type_Mobile phone', date FROM youtube_data_schema.youtube_chart_data WHERE geography_de > 1"
+
+    results = RedashApi.query_and_wait_result(1, query)
+
+    return jsonify(results), 200
 
 # TODO - Add quart schema
-
 # TODO - Perform Testing

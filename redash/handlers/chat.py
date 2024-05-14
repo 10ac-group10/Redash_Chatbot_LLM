@@ -12,7 +12,7 @@ from src.decorators import disable_csrf_check
 
 load_dotenv()
 
-VARIABLE_KEY = os.environ.get("OPENAI_API_KEY")
+# VARIABLE_KEY = os.environ.get("OPENAI_API_KEY")
 
 def filter_llm_answer(answer: str) -> str:
     # Find the index of "System:"

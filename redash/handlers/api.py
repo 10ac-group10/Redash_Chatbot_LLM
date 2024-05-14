@@ -113,7 +113,7 @@ api = ApiExt()
 
 ### Added for chatbot
 
-# api.add_org_resource(ChatResource, "/api/chat", endpoint="chat")
+api.add_org_resource(ChatResource, "/api/chat", endpoint="chat")
 
 ###
 

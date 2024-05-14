@@ -1,4 +1,4 @@
-.PHONY: compose_build up test_db create_database create_db clean clean-all down tests lint backend-unit-tests frontend-unit-tests pydeps test build watch start redis-cli bash start-quart run
+.PHONY: compose_build up test_db create_database create_db clean clean-all down tests lint backend-unit-tests frontend-unit-tests pydeps test build watch start redis-cli bash run
 
 export COMPOSE_DOCKER_CLI_BUILD=1
 export DOCKER_BUILDKIT=1
@@ -67,7 +67,6 @@ pydeps:
 	pip3 install wheel
 	pip3 install --upgrade black ruff launchpadlib pip setuptools
 	pip3 install poetry
-	pip3 install langchain_openai
 	poetry install --only main,all_ds,dev
 
 tests:
@@ -100,6 +99,3 @@ redis-cli:
 
 bash:
 	docker compose run --rm server bash
-
-start-quart:
-	cd redash/api/src && nohup poetry run start > output.log 2>&1 &
