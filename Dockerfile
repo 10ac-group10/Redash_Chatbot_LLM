@@ -87,12 +87,6 @@ RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
 
 WORKDIR /app
 
-### Modified by me
-# Install the required dependencies
-RUN python -m pip install --upgrade pip
-RUN pip install langchain_openai openai quart
-###
-
 ENV POETRY_VERSION=1.6.1
 ENV POETRY_HOME=/etc/poetry
 ENV POETRY_VIRTUALENVS_CREATE=false

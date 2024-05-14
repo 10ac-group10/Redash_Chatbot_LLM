@@ -4,6 +4,8 @@ import os
 from openai import OpenAI
 import logging
 from utils.utils import get_schema, get_llm_response
+from celery import Celery
+
 from redash_toolbelt import Redash
 from redashAPI import RedashAPIClient
 
@@ -25,6 +27,9 @@ app = Quart(__name__)
 
 # Set the logging level to INFO so that we can see the logs in the console
 logging.basicConfig(level=logging.INFO)
+
+# FOR TESTING PURPOSES
+query = "SELECT geography_de, 'Device type_Mobile phone', date FROM youtube_data_schema.youtube_chart_data WHERE geography_de > 1"
 
 def run() -> None:
     app.run(port=5057)
@@ -93,3 +98,49 @@ async def get_results():
 
 # TODO - Add quart schema
 # TODO - Perform Testing
+####################################################
+# CELERY TASKS IMPLEMENTATION - REDASH API
+####################################################
+
+def make_celery(app_name=__name__):
+    backend = app.config['CELERY_RESULT_BACKEND']
+    broker = app.config['CELERY_BROKER_URL']
+    celery = Celery(app_name, backend=backend, broker=broker)
+
+    return celery
+
+celery = make_celery()
+
+# Define the Celery task that will be used to execute the query
+def long_running_taks(query):
+    # The task logic here
+    results = RedashApi.query_and_wait_result(1, query)
+
+    # Process the results
+    processed_results = process_results(results)
+
+    return processed_results
+
+@app.route('/api/chat/start_task', methods=['post'])
+async def start_task():
+    value = await request.get_json()
+    query = value.get('query')
+    task = long_running_taks.delay(query)
+    return jsonify({"task_id": task.id}), 200
+
+# Example of processing the results
+def process_results(results):
+    # The results returned from the Redash API are in the format:
+    # {'columns': [{'name': 'column1', 'type': 'type1'}, {'name': 'column2', 'type': 'type2'}], 'rows': [{'column1': 'value1', 'column2': 'value2'}]}
+    # We'll transform this into a list of dictionaries for easier processing
+
+    processed_results = []
+
+    for row in results['rows']:
+        processed_row = {}
+        for column in results['columns']:
+            column_name = column['name']
+            processed_row[column_name] = row[column_name]
+        processed_results.append(processed_row)
+
+    return processed_results
