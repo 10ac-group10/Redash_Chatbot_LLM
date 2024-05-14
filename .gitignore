@@ -29,5 +29,5 @@ client/cypress/screenshots
 client/cypress/videos
 
 # data
-data/
+data
 myenv
