@@ -7,4 +7,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY redash/api/src ./
 
-CMD ["hypercorn", "api:app", "-b", "0.0.0.0:5050"]
+CMD ["hypercorn", "api:app", "-b", "0.0.0.0:5057"]
