@@ -4,8 +4,6 @@ import os
 from openai import OpenAI
 import logging
 from utils.utils import get_schema, get_llm_response
-from celery import Celery
-from api.tasks import CeleryManager
 
 from redash_toolbelt import Redash
 from redashAPI import RedashAPIClient
@@ -16,6 +14,11 @@ load_dotenv()
 # Get the values of the Keys from the environment variables or the .env file
 VARIABLE_KEY = os.environ.get("OPENAI_API_KEY")
 REDASH_API_KEY = os.environ.get("REDASH_API_KEY")
+DB_USER = os.environ.get("DB_USER")
+DB_PASSWORD = os.environ.get("DB_PASSWORD")
+DB_HOST = os.environ.get("DB_HOST")
+DB_PORT = os.environ.get("DB_PORT")
+DB_NAME = os.environ.get("DB_NAME")
 
 # Define the URL of the Redash instance - In this case, it is the URL of nginx which is the reverse proxy for the Redash server and quart server
 REDASH_URL = os.environ.get("REDASH_URL")
@@ -106,16 +109,68 @@ async def create_query():
     # Get the data source Id given the data source name
     return jsonify(data), 201
 
-# Generate query results
-@app.route('/api/chat/query_results', methods=['post'])
-async def generate_query_results():
+
+@app.route('/api/chat/visualize', methods=['post'])
+async def visualize():
     value = await request.get_json()
     query = value.get('query')
 
-    results = RedashApi.generate_query_results(1, query)
-
+    results = RedashApi.create_query(1, "Query 1", query)
     data = results.json()
-    return jsonify(data), 200
+
+    query_id = data.get('id')
+
+    logging.info(query_id)
+
+    visualization_results = RedashApi.create_visualization(
+        query_id,
+        "column",
+        "Youtube visualizations",
+        x_axis="date",
+        y_axis=[
+            {
+                "name": "geography_de",
+                "type": "column",
+                "label": "Geography DE"
+            },
+            {
+                "name": "Device type_Mobile phone",
+                "type": "column",
+                "label": "Mobile Phone Views"
+            }
+        ]
+    )
+
+    # Get the visualization id
+    viz_id = visualization_results.json().get('id')
+
+    # Create the dashboard for where to add visualizations
+    dashboard_results = RedashApi.create_dashboard(
+        "Youtube Data Dashboard",
+    )
+
+    # Get the dashboard id
+    ds_id = dashboard_results.json().get('id')
+
+
+    # Widget for the visualization
+    widget_results = redash.create_widget(
+        ds_id,
+        viz_id,
+        "The youtube views visualization results",
+        options={}
+    )
+
+    ids = {
+        "query_id": query_id,
+        "visualization_id": viz_id,
+        "dashboard_id": ds_id,
+        # "widget_id": widget_results.json().get('id')
+    }
+
+    return jsonify(ids), 200
+
+
 
 
 # TODO - Add quart schema
