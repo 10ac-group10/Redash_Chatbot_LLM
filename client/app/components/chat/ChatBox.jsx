@@ -16,7 +16,7 @@ export default function ChatBox() {
   const [chatHistory, setChatHistory] = useState([]);
 
   const handler = (event) => {
-    if (event.keyCode === 13) {      
+    if (event.keyCode === 13) {
       handleChatInput();
     }
   };
@@ -25,16 +25,19 @@ export default function ChatBox() {
     const data = { sender: "user", text: input };
     if (input !== "") {
       setChatHistory((history) => [...history, data]);
-      chatWithOpenai(input);    
-      setInput("");  
+      chatWithOpenai(input);
+      setInput("");
     }
   }
 
   async function chatWithOpenai(text) {
     const requestOptions = {
-        question: text
+        question: text,
+        chatHistory: chatHistory
     };
     const response = await Chat.openai(requestOptions);
+    console.log(response)
+
     const data = {
       sender: "bot",
       text: response.answer
@@ -59,59 +62,58 @@ export default function ChatBox() {
   const formatingCode = (code) => {
     // Split the code by lines to remove unnecessary white spaces
     const lines = code.split(/\s*(?=<)/);
-    
+
     // Remove leading and trailing white spaces from each line
     const trimmedLines = lines.map((line) => line.trim());
-    
+
     // Join the lines with line breaks and indentation
     const formattedCode = trimmedLines.join('\n');
-    
+
     return formattedCode;
   };
 
   const splitAnswerParts = (answer) => {
     const parts = [];
     const codeRegex = /```([\s\S]*?)```/g;
-  
+
     let match;
     let lastIndex = 0;
-  
+
     while ((match = codeRegex.exec(answer))) {
       const codeContent = match[1].trim();
-  
+
       if (match.index > lastIndex) {
         const textContent = answer.substring(lastIndex, match.index).trim();
         parts.push({ type: 'text', content: textContent });
       }
-  
+
       const lines = codeContent.split('\n');
       const firstLine = lines[0].trim();
       const firstWord = firstLine.split(' ')[0];
       const firstLineEndIndex = codeContent.indexOf(' ') + 1;
       const remainingCode = codeContent.substring(firstLineEndIndex).trim();
       const formattedCodeContent = formatingCode(remainingCode); // Process the remaining code through formatingCode function
-  
+
       parts.push({ type: 'code', firstWord, content: formattedCodeContent });
-  
+
       lastIndex = match.index + match[0].length;
     }
-  
+
     if (lastIndex < answer.length) {
       const textContent = answer.substring(lastIndex).trim();
       parts.push({ type: 'text', content: textContent });
     }
-  
+
     return parts;
   };
 
-  
   return (
     <>
       {open?
       <div className='chatcontainer'>
         <div>
             <div className='headbox'>
-              <p>query, visualize with AI</p>            
+              <p>query, visualize with AI</p>
             </div>
 
             <div className='chatbox'>
@@ -142,7 +144,7 @@ export default function ChatBox() {
                                         </div>
                                         <div className=''>
                                           {part.firstWord}
-                                        </div>                            
+                                        </div>
                                     </div>
                                     <SyntaxHighlighter
                                       language={part.firstWord}
@@ -175,9 +177,9 @@ export default function ChatBox() {
               ))}
             </div>
 
-            <div className='inputbox'>        
-              <input             
-                  className="input"    
+            <div className='inputbox'>
+              <input
+                  className="input"
                   type="text"
                   value={input}
                   placeholder="Type your message…"
@@ -191,7 +193,7 @@ export default function ChatBox() {
 
       <div className='iconbox' onClick={()=>setOpen(!open)}>
          <img alt="charimage" src={redashpng} className="icon" />
-      </div>     
+      </div>
     </>
   )
 }
