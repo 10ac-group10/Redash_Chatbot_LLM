@@ -59,7 +59,7 @@ def get_llm_response(question: str) -> str:
     # Get the schema of the youtube_data database
     schema = get_schema()
 
-    sql_query_example = "SELECT 'date', 'Content_type_Videos', 'Device type_Mobile phone' FROM youtube_chart_data"
+    sql_query_example = "SELECT date, content_type_videos, device_type_mobile_phone FROM youtube_schema_data.youtube_chart_data"
 
     # Define the system message
     system_message = (f"You are a nice assistant. You are trained to generate SQL queries for Redash based on user's questions. "
@@ -68,6 +68,7 @@ def get_llm_response(question: str) -> str:
                       f"You are not to make up any information, if you don't know, say 'I don't know'. "
                       f"The date field has values in this format: YYYY-MM-DD. "
                       f"You will be given a schema with the table names and columns, do not deviate from the schema given and maintain the casing of the column names as provided in the schema."
+                      f"Make sure you provide the correct SQL query with the correct format after FROM part like this: 'FROM youtube_data_schema.youtube_chart_data'."
                       f"You have access to the youtube database with the following schema:\n") + schema
 
     # Create a SystemMessagePromptTemplate from the system message

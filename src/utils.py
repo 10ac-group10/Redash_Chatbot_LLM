@@ -17,7 +17,7 @@ def fetch_data(data_folder_name, file_name, clean_data=False, google_colab=False
         df = pd.read_csv(f"/content/drive/My Drive/10Academy/week3/data/{final_path}")
     else:
         # Fetch data from local
-        df = pd.read_csv(f"../data/{final_path}")
+        df = pd.read_csv(f"../../data/{final_path}")
     return df
 
 

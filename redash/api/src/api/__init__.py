@@ -33,7 +33,7 @@ app = Quart(__name__)
 logging.basicConfig(level=logging.INFO)
 
 # FOR TESTING PURPOSES
-query = "SELECT geography_de, 'Device type_Mobile phone', date FROM youtube_data_schema.youtube_chart_data WHERE geography_de > 1"
+query_example = "SELECT \"Content type_Videos\", \"Device type_Mobile phone\", date FROM youtube_data_schema.youtube_chart_data LIMIT 10;"
 
 def run() -> None:
     app.run(port=5057)
@@ -58,6 +58,11 @@ async def handle_user_question():
         question = value.get('question')
 
         answer = get_llm_response(question)
+
+        visualize_results = visualize(query_example)
+
+        logging.info(visualize_results)
+
 
         response_data = {"answer": answer}
         return jsonify(response_data), 200
@@ -110,10 +115,7 @@ async def create_query():
     return jsonify(data), 201
 
 
-@app.route('/api/chat/visualize', methods=['post'])
-async def visualize():
-    value = await request.get_json()
-    query = value.get('query')
+def visualize(query: str):
 
     results = RedashApi.create_query(1, "Query 1", query)
     data = results.json()
@@ -129,7 +131,7 @@ async def visualize():
         x_axis="date",
         y_axis=[
             {
-                "name": "geography_de",
+                "name": "Content type_Videos",
                 "type": "column",
                 "label": "Geography DE"
             },
@@ -168,7 +170,68 @@ async def visualize():
         # "widget_id": widget_results.json().get('id')
     }
 
-    return jsonify(ids), 200
+    return ids
+
+
+# @app.route('/api/chat/visualize', methods=['post'])
+# async def visualize(query: str):
+#     value = await request.get_json()
+#     query = value.get('query')
+#
+#     results = RedashApi.create_query(1, "Query 1", query)
+#     data = results.json()
+#
+#     query_id = data.get('id')
+#
+#     logging.info(query_id)
+#
+#     visualization_results = RedashApi.create_visualization(
+#         query_id,
+#         "column",
+#         "Youtube visualizations",
+#         x_axis="date",
+#         y_axis=[
+#             {
+#                 "name": "Content type_Videos",
+#                 "type": "column",
+#                 "label": "Geography DE"
+#             },
+#             {
+#                 "name": "Device type_Mobile phone",
+#                 "type": "column",
+#                 "label": "Mobile Phone Views"
+#             }
+#         ]
+#     )
+#
+#     # Get the visualization id
+#     viz_id = visualization_results.json().get('id')
+#
+#     # Create the dashboard for where to add visualizations
+#     dashboard_results = RedashApi.create_dashboard(
+#         "Youtube Data Dashboard",
+#     )
+#
+#     # Get the dashboard id
+#     ds_id = dashboard_results.json().get('id')
+#
+#
+#     # Widget for the visualization
+#     widget_results = redash.create_widget(
+#         ds_id,
+#         viz_id,
+#         "The youtube views visualization results",
+#         options={}
+#     )
+#
+#     ids = {
+#         "query_id": query_id,
+#         "visualization_id": viz_id,
+#         "dashboard_id": ds_id,
+#         # "widget_id": widget_results.json().get('id')
+#     }
+#
+#     return jsonify(ids), 200
 
 
 
