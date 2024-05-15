@@ -19,7 +19,6 @@ up:
   		| grep -q "youtube_data" || make create_youtube_database
 
 	docker compose up -d --build
-	#make start-quart
 
 test_db:
 	@for i in `seq 1 5`; do \
