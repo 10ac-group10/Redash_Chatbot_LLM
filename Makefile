@@ -1,4 +1,4 @@
-.PHONY: compose_build up test_db create_database create_db clean clean-all down tests lint backend-unit-tests frontend-unit-tests pydeps test build watch start redis-cli bash run
+.PHONY: compose_build up test_db create_database create_db clean clean-all down tests lint backend-unit-tests frontend-unit-tests pydeps test build watch start redis-cli bash run create_youtube_database
 
 export COMPOSE_DOCKER_CLI_BUILD=1
 export DOCKER_BUILDKIT=1
@@ -12,6 +12,12 @@ up:
 	docker compose exec -u postgres postgres psql postgres --csv \
 		-1tqc "SELECT table_name FROM information_schema.tables WHERE table_name = 'organizations'" 2> /dev/null \
 		| grep -q "organizations" || make create_database
+
+	# check if youtube database exists and if not create it
+	docker compose exec -u postgres postgres psql postgres --csv \
+		-1tqc "SELECT datname FROM pg_database WHERE datname = 'youtube_data'" 2> /dev/null \
+  		| grep -q "youtube_data" || make create_youtube_database
+
 	docker compose up -d --build
 	#make start-quart
 
@@ -99,3 +105,6 @@ redis-cli:
 
 bash:
 	docker compose run --rm server bash
+
+create_youtube_database:
+	docker compose exec -u postgres postgres psql postgres -c "CREATE DATABASE youtube_data;"
