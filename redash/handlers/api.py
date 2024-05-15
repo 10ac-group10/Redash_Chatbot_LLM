@@ -4,9 +4,9 @@ from flask_restful import Api
 from werkzeug.wrappers import Response
 
 ### Added for chatbot
-from redash.handlers.chat import (
-    ChatResource
-)
+# from redash.handlers.chat import (
+#     ChatResource
+# )
 ###
 
 from redash.handlers.alerts import (
@@ -113,7 +113,7 @@ api = ApiExt()
 
 ### Added for chatbot
 
-api.add_org_resource(ChatResource, "/api/chat", endpoint="chat")
+# api.add_org_resource(ChatResource, "/api/chat", endpoint="chat")
 
 ###
 

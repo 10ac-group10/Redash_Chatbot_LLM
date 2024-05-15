@@ -94,6 +94,7 @@ services:
       - REDASH_API_KEY=${REDASH_API_KEY}
     depends_on:
       - server
+      - redis
   nginx:
     image: nginx:latest
     volumes:

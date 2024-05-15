@@ -24,6 +24,8 @@ redash = Redash(REDASH_URL, REDASH_API_KEY)
 RedashApi = RedashAPIClient(REDASH_API_KEY, REDASH_URL)
 
 app = Quart(__name__)
+app.config['CELERY_BROKER_URL'] = 'redis://redis:6379/0'
+app.config['CELERY_RESULT_BACKEND'] = 'redis://redis:6379/0'
 
 # Set the logging level to INFO so that we can see the logs in the console
 logging.basicConfig(level=logging.INFO)
@@ -111,7 +113,9 @@ def make_celery(app_name=__name__):
 
 celery = make_celery()
 
+
 # Define the Celery task that will be used to execute the query
+@celery.task
 def long_running_taks(query):
     # The task logic here
     results = RedashApi.query_and_wait_result(1, query)
@@ -120,6 +124,7 @@ def long_running_taks(query):
     processed_results = process_results(results)
 
     return processed_results
+
 
 @app.route('/api/chat/start_task', methods=['post'])
 async def start_task():

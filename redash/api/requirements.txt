@@ -10,3 +10,5 @@ psycopg2==2.9.9
 redash-toolbelt==0.1.9
 redash-api-client==0.3.0
 celery==5.4.0
+llama-index==0.10.36
+redis==5.0.4

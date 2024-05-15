@@ -2,12 +2,12 @@ name: Tests
 on:
   push:
     branches:
-      - master
+      - main
     tags:
       - '*'
   pull_request_target:
     branches:
-      - master
+      - main
 env:
   CYPRESS_COVERAGE: "true"
   NODE_VERSION: 18
