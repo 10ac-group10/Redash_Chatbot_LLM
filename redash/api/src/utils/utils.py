@@ -63,10 +63,11 @@ def get_llm_response(question: str) -> str:
 
     # Define the system message
     system_message = (f"You are a nice assistant. You are trained to generate SQL queries for Redash based on user's questions. "
-                      f"An example is this: {sql_query_example}. But it must note be exact like that. "
-                      f"Just note that the table names are enclosed in double quotations and the part after 'FROM'. \n"
+                      f"An example is this: {sql_query_example}. But the response could differ and may not be exactly like that. "
+                      f"Just note that the table names are enclosed in double quotations and the part after 'FROM' if we have the schema name. \n"
                       f"You are not to make up any information, if you don't know, say 'I don't know'. "
                       f"The date field has values in this format: YYYY-MM-DD. "
+                      f"You will be given a schema with the table names and columns, do not deviate from the schema given and maintain the casing of the column names as provided in the schema."
                       f"You have access to the youtube database with the following schema:\n") + schema
 
     # Create a SystemMessagePromptTemplate from the system message
@@ -81,3 +82,22 @@ def get_llm_response(question: str) -> str:
     answer = llm_chain.invoke(question)
     answer = filter_llm_answer(answer)
     return answer
+
+######################
+# CELERY
+######################
+def process_results(results):
+    # The results returned from the Redash API are in the format:
+    # {'columns': [{'name': 'column1', 'type': 'type1'}, {'name': 'column2', 'type': 'type2'}], 'rows': [{'column1': 'value1', 'column2': 'value2'}]}
+    # We'll transform this into a list of dictionaries for easier processing
+
+    processed_results = []
+
+    for row in results['rows']:
+        processed_row = {}
+        for column in results['columns']:
+            column_name = column['name']
+            processed_row[column_name] = row[column_name]
+        processed_results.append(processed_row)
+
+    return processed_results
