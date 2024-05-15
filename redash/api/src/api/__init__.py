@@ -5,6 +5,7 @@ from openai import OpenAI
 import logging
 from utils.utils import get_schema, get_llm_response
 from celery import Celery
+from api.tasks import CeleryManager
 
 from redash_toolbelt import Redash
 from redashAPI import RedashAPIClient
@@ -17,15 +18,13 @@ VARIABLE_KEY = os.environ.get("OPENAI_API_KEY")
 REDASH_API_KEY = os.environ.get("REDASH_API_KEY")
 
 # Define the URL of the Redash instance - In this case, it is the URL of nginx which is the reverse proxy for the Redash server and quart server
-REDASH_URL = "http://nginx:80"
+REDASH_URL = os.environ.get("REDASH_URL")
 
 # Initialize the Redash object that will be used to interact with the Redash API
 redash = Redash(REDASH_URL, REDASH_API_KEY)
 RedashApi = RedashAPIClient(REDASH_API_KEY, REDASH_URL)
 
 app = Quart(__name__)
-app.config['CELERY_BROKER_URL'] = 'redis://redis:6379/0'
-app.config['CELERY_RESULT_BACKEND'] = 'redis://redis:6379/0'
 
 # Set the logging level to INFO so that we can see the logs in the console
 logging.basicConfig(level=logging.INFO)
@@ -81,8 +80,6 @@ async def get_query_results():
     value = await request.get_json()
     query = value.get('query')
 
-    query = "SELECT geography_de, 'Device type_Mobile phone', date FROM youtube_data_schema.youtube_chart_data WHERE geography_de > 1"
-
     # query = redash.get_query(query_id)
     # Execute the query and get the results
     results = redash.create_query(query)
@@ -91,12 +88,25 @@ async def get_query_results():
 
 @app.route('/api/chat/results', methods=['get'])
 async def get_results():
+    logging.info(REDASH_API_KEY)
     # Execute the query and get the results
-    query = "SELECT geography_de, 'Device type_Mobile phone', date FROM youtube_data_schema.youtube_chart_data WHERE geography_de > 1"
-
     results = RedashApi.query_and_wait_result(1, query)
 
     return jsonify(results), 200
+
+@app.route('/api/chat/query', methods=['post'])
+async def create_query():
+    value = await request.get_json()
+    query = value.get('query')
+    # Execute the query and get the results
+    results = RedashApi.create_query(1, "Mobile Phone views", query)
+
+    data = results.json()
+
+    # Get the data source Id given the data source name
+    return jsonify(data), 201
+
+
 
 # TODO - Add quart schema
 # TODO - Perform Testing
@@ -104,48 +114,14 @@ async def get_results():
 # CELERY TASKS IMPLEMENTATION - REDASH API
 ####################################################
 
-def make_celery(app_name=__name__):
-    backend = app.config['CELERY_RESULT_BACKEND']
-    broker = app.config['CELERY_BROKER_URL']
-    celery = Celery(app_name, backend=backend, broker=broker)
-
-    return celery
-
-celery = make_celery()
 
 
-# Define the Celery task that will be used to execute the query
-@celery.task
-def long_running_taks(query):
-    # The task logic here
-    results = RedashApi.query_and_wait_result(1, query)
 
-    # Process the results
-    processed_results = process_results(results)
-
-    return processed_results
-
-
-@app.route('/api/chat/start_task', methods=['post'])
-async def start_task():
-    value = await request.get_json()
-    query = value.get('query')
-    task = long_running_taks.delay(query)
-    return jsonify({"task_id": task.id}), 200
+# @app.route('/api/chat/start_task', methods=['post'])
+# async def start_task():
+#     value = await request.get_json()
+#     query = value.get('query')
+#     task = long_running_taks.delay(query)
+#     return jsonify({"task_id": task.id}), 200
 
 # Example of processing the results
-def process_results(results):
-    # The results returned from the Redash API are in the format:
-    # {'columns': [{'name': 'column1', 'type': 'type1'}, {'name': 'column2', 'type': 'type2'}], 'rows': [{'column1': 'value1', 'column2': 'value2'}]}
-    # We'll transform this into a list of dictionaries for easier processing
-
-    processed_results = []
-
-    for row in results['rows']:
-        processed_row = {}
-        for column in results['columns']:
-            column_name = column['name']
-            processed_row[column_name] = row[column_name]
-        processed_results.append(processed_row)
-
-    return processed_results
