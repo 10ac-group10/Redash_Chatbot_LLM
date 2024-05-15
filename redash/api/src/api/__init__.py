@@ -106,6 +106,16 @@ async def create_query():
     # Get the data source Id given the data source name
     return jsonify(data), 201
 
+# Generate query results
+@app.route('/api/chat/query_results', methods=['post'])
+async def generate_query_results():
+    value = await request.get_json()
+    query = value.get('query')
+
+    results = RedashApi.generate_query_results(1, query)
+
+    data = results.json()
+    return jsonify(data), 200
 
 
 # TODO - Add quart schema
