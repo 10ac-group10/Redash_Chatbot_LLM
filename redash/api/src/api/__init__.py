@@ -1,9 +1,10 @@
 from quart import Quart, request, jsonify
 from dotenv import load_dotenv
+import psycopg2
 import os
 from openai import OpenAI
 import logging
-from utils.utils import get_schema, get_llm_response
+from utils.utils import get_schema, get_llm_response, get_y_axis
 
 from redash_toolbelt import Redash
 from redashAPI import RedashAPIClient
@@ -33,7 +34,7 @@ app = Quart(__name__)
 logging.basicConfig(level=logging.INFO)
 
 # FOR TESTING PURPOSES
-query_example = "SELECT \"Content type_Videos\", \"Device type_Mobile phone\", date FROM youtube_data_schema.youtube_chart_data LIMIT 10;"
+query_example = "SELECT content_type_Videos, device_type_mobile_phone, date FROM youtube_data_schema.youtube_chart_data LIMIT 10;"
 
 def run() -> None:
     app.run(port=5057)
@@ -51,25 +52,54 @@ async def echo():
 async def handle_user_question():
     try:
         schema = get_schema()
-        logging.info(schema)
-
 
         value = await request.get_json()
         question = value.get('question')
+        chatHistory = value.get('chatHistory')
 
-        answer = get_llm_response(question)
+        # Limit the number of retries
+        max_retries = 5
+        for attempt in range(max_retries):
+            try:
+                query = get_llm_response(question, chatHistory)
 
-        visualize_results = visualize(query_example)
+                # Connect to your database
+                conn = psycopg2.connect(
+                    dbname=DB_NAME,
+                    user=DB_USER,
+                    password=DB_PASSWORD,
+                    host=DB_HOST,
+                    port=DB_PORT
+                )
+
+                # Create a cursor object
+                cur = conn.cursor()
+
+                # Execute your query
+                cur.execute(query)
+
+                # If the query is executed successfully, break the loop
+                break
+            except Exception as error:
+                logging.error(error)
+                if attempt == max_retries - 1:  # If this was the last attempt
+                    return jsonify(
+                        {"error": "An error occurred while processing your query. Please try again later."}), 500
+                continue
+
+        visualize_results = visualize(query)
 
         logging.info(visualize_results)
 
+        ds_id = visualize_results.get('dashboard_id')
 
-        response_data = {"answer": answer}
+
+        response_data = {"answer": query, "dashboard_id": ds_id, "chatHistory": chatHistory}
         return jsonify(response_data), 200
     except Exception as error:
         print(error)
         logging.error(error)
-        return jsonify({"error": "An error occurred"}), 500
+        return jsonify({"answer": query, "dashboard_id": None, "chatHistory": chatHistory}), 200
 
 @app.route('/api/chat/redash/data_sources', methods=['get'])
 async def get_queries():
@@ -94,8 +124,10 @@ async def get_query_results():
 
     return jsonify(results), 200
 
-@app.route('/api/chat/results', methods=['get'])
+@app.route('/api/chat/results', methods=['post'])
 async def get_results():
+    value = await request.get_json()
+    query = value.get('query')
     logging.info(REDASH_API_KEY)
     # Execute the query and get the results
     results = RedashApi.query_and_wait_result(1, query)
@@ -116,6 +148,7 @@ async def create_query():
 
 
 def visualize(query: str):
+    y_axis = get_y_axis(query)
 
     results = RedashApi.create_query(1, "Query 1", query)
     data = results.json()
@@ -129,18 +162,7 @@ def visualize(query: str):
         "column",
         "Youtube visualizations",
         x_axis="date",
-        y_axis=[
-            {
-                "name": "Content type_Videos",
-                "type": "column",
-                "label": "Geography DE"
-            },
-            {
-                "name": "Device type_Mobile phone",
-                "type": "column",
-                "label": "Mobile Phone Views"
-            }
-        ]
+        y_axis=y_axis
     )
 
     # Get the visualization id
