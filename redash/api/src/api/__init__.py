@@ -5,6 +5,7 @@ import os
 from openai import OpenAI
 import logging
 from utils.utils import get_schema, get_llm_response, get_y_axis
+from utils.chat_history import save_chat_history_redis, get_chat_history_redis
 
 from redash_toolbelt import Redash
 from redashAPI import RedashAPIClient
@@ -27,6 +28,8 @@ REDASH_URL = os.environ.get("REDASH_URL")
 # Initialize the Redash object that will be used to interact with the Redash API
 redash = Redash(REDASH_URL, REDASH_API_KEY)
 RedashApi = RedashAPIClient(REDASH_API_KEY, REDASH_URL)
+logging.info(REDASH_API_KEY)
+
 
 app = Quart(__name__)
 
@@ -36,10 +39,31 @@ logging.basicConfig(level=logging.INFO)
 # FOR TESTING PURPOSES
 query_example = "SELECT content_type_Videos, device_type_mobile_phone, date FROM youtube_data_schema.youtube_chart_data LIMIT 10;"
 
+# Make a simple API request to check if the Redash instance is working
+def create_pg_database():
+    try:
+        data_sources = redash.get_data_sources()
+        # RedashApi.create_data_source("pg",'Postgres Youtube',{
+        #     "dbname": "youtube_data",
+        #     "host": "postgres",
+        #     "user": "postgres",
+        #     "passwd": "postgres",
+        #     "port": "5432"
+        # })
+        logging.info(data_sources)
+
+    except Exception as e:
+        print(e)
+        logging.error(e)
+        print(f"An error occurred while checking the Redash instance: {e}")
+
 def run() -> None:
+    create_pg_database()
     app.run(port=5057)
 
 client = OpenAI(api_key=VARIABLE_KEY)
+
+create_pg_database()
 
 @app.route('/api/chat/echo')
 async def echo():
@@ -91,11 +115,27 @@ async def handle_user_question():
 
         logging.info(visualize_results)
 
-        ds_id = visualize_results.get('dashboard_id')
+        # ds_id = visualize_results.get('dashboard_id')
 
+        try:
 
-        response_data = {"answer": query, "dashboard_id": ds_id, "chatHistory": chatHistory}
-        return jsonify(response_data), 200
+            # Save the chat history to Redis database
+            save_chat_history_redis(chatHistory)
+            logging.info("WORKS!!!")
+
+            # Retrieve the chat history from Redis
+            retrieved_chat_history = get_chat_history_redis()
+            logging.info(retrieved_chat_history)
+
+            response_data = {"answer": query, "dashboard_id": "NOT THERE", "chatHistory": retrieved_chat_history}
+            return jsonify(response_data), 200
+
+        except Exception as error:
+            logging.error(error)
+
+            response_data = {"answer": query, "dashboard_id": "CHAT HISTORY ERROR", "chatHistory": chatHistory}
+            return jsonify(response_data), 200
+
     except Exception as error:
         print(error)
         logging.error(error)
@@ -175,6 +215,7 @@ def visualize(query: str):
 
     # Get the dashboard id
     ds_id = dashboard_results.json().get('id')
+    logging.info(ds_id)
 
 
     # Widget for the visualization
@@ -184,6 +225,7 @@ def visualize(query: str):
         "The youtube views visualization results",
         options={}
     )
+    # RedashApi.calculate_widget_position(ds_id, True)
 
     ids = {
         "query_id": query_id,

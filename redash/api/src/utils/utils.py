@@ -3,6 +3,7 @@ import os
 from dotenv import load_dotenv
 from langchain_openai import OpenAI
 from langchain_core.prompts import SystemMessagePromptTemplate
+import json
 
 load_dotenv()
 
@@ -69,7 +70,9 @@ def get_llm_response(question: str, chatHistory) -> str:
     # Get the schema of the youtube_data database
     schema = get_schema()
 
-    sql_query_example = "SELECT date, content_type_videos, device_type_mobile_phone FROM youtube_schema_data.youtube_chart_data"
+    chatHistory = json.dumps(chatHistory)
+
+    sql_query_example = "SELECT date, content_type_videos, device_type_mobile_phone FROM youtube_data_schema.youtube_chart_data"
 
     # Define the system message
     system_message = (f"You are a nice assistant. You are trained to generate SQL queries for Redash based on user's questions. "
@@ -80,6 +83,7 @@ def get_llm_response(question: str, chatHistory) -> str:
                       f"The date field has values in this format: YYYY-MM-DD. "
                       f"Avoid something like this: SQL Query: SELECT * FROM youtube_data_schema.youtube_chart_data."
                       f"Only start with SELECT statement without adding anything like 'SQL Query:'."
+                      f"And DO NOT RETURN and query with punctuation marks irrelevant like ?"
                       f"You will be given a schema with the table names and columns, do not deviate from the schema given and maintain the casing of the column names as provided in the schema."
                       f"Make sure you provide the correct SQL query with the correct format after FROM part like this: 'FROM youtube_data_schema.youtube_chart_data'."
                       f"Only give the first 10 results if the query is a SELECT statement for better visualizations."

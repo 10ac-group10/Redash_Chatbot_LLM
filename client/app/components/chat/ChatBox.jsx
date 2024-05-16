@@ -8,12 +8,17 @@ import SyntaxHighlighter from 'react-syntax-highlighter';
 import {docco} from 'react-syntax-highlighter/dist/esm/styles/hljs';
 import copy from 'copy-to-clipboard';
 
+// import react from "react";
+// import { useNavigate } from "react-router-dom";
+
 
 export default function ChatBox() {
   const [input, setInput] = useState("")
   const [open, setOpen] = useState(false);
   const [copiedStates, setCopiedStates] = useState({});
   const [chatHistory, setChatHistory] = useState([]);
+
+  // const navigate= useNavigate();
 
   const handler = (event) => {
     if (event.keyCode === 13) {
@@ -28,6 +33,13 @@ export default function ChatBox() {
       chatWithOpenai(input);
       setInput("");
     }
+
+    // Redirect to the dashboard page after the llm answers the user question
+    // useNavigate(`${response.dashboard_id}-youtube-data-dashboard`)
+    // Use history.push() to redirect to the dashboard page
+    // if (response.dashboard_id) {
+    //   navigate(`${response.dashboard_id}-youtube-data-dashboard`)
+    // }
   }
 
   async function chatWithOpenai(text) {
@@ -36,19 +48,24 @@ export default function ChatBox() {
       chatHistory: chatHistory
     };
     const response = await Chat.openai(requestOptions);
-    console.log(response)
+    // console.log(response)
 
-    if (response.statusCode === 200) {
-      const data = {
-        sender: "bot",
-        text: response.answer
-      };
-    } else if (response.statusCode === 500) {
-      const data = {
-        sender: "bot",
-        text: "I'm sorry, I didn't understand that. Could you please rephrase your question?"
-      };
-    }
+    // if (response.statusCode === 200) {
+    //   const data = {
+    //     sender: "bot",
+    //     text: response.answer
+    //   };
+    // } else if (response.statusCode === 500) {
+    //   const data = {
+    //     sender: "bot",
+    //     text: "I'm sorry, I didn't understand that. Could you please rephrase your question?"
+    //   };
+    // }
+
+    const data = {
+      sender: "bot",
+      text: response.answer
+    };
 
     setChatHistory((history) => [...history, data]);
     setInput("");
