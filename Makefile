@@ -1,4 +1,4 @@
-.PHONY: compose_build up test_db create_database create_db clean clean-all down tests lint backend-unit-tests frontend-unit-tests pydeps test build watch start redis-cli bash run create_youtube_database
+.PHONY: compose_build up test_db create_database create_db clean clean-all down tests lint backend-unit-tests frontend-unit-tests pydeps test build watch start redis-cli bash run create_youtube_database create_youtube_data_schema load_data
 
 export COMPOSE_DOCKER_CLI_BUILD=1
 export DOCKER_BUILDKIT=1
@@ -111,3 +111,11 @@ create_youtube_database:
 
 create_youtube_data_schema:
 	docker compose exec -u postgres postgres psql youtube_data -c "CREATE SCHEMA IF NOT EXISTS youtube_data_schema;"
+	make load_data
+
+load_data:
+	@if [ -f ./data/youtube_chart_data.csv ]; then \
+  		docker compose run --rm server python load_data.py; \
+  	else \
+  	  echo "Data file does not exist."; \
+  	fi
