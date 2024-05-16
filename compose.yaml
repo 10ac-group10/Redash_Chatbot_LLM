@@ -95,6 +95,7 @@ services:
     depends_on:
       - server
       - redis
+      - postgres
   nginx:
     image: nginx:latest
     volumes:
