@@ -2,7 +2,6 @@ import pandas as pd
 import psycopg2
 import os
 
-
 # fetch data from google drive reusable function
 # TODO - make is reusable further by having the entire path as a parameter
 def fetch_data(data_folder_name, file_name, clean_data=False, google_colab=False):
