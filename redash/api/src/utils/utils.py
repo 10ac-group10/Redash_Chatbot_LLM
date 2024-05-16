@@ -1,7 +1,17 @@
 import psycopg2
 import os
+from dotenv import load_dotenv
 from langchain_openai import OpenAI
 from langchain_core.prompts import SystemMessagePromptTemplate
+
+load_dotenv()
+
+# Get the values of the Keys from the environment variables or the .env file
+DB_USER = os.environ.get("DB_USER")
+DB_PASSWORD = os.environ.get("DB_PASSWORD")
+DB_HOST = os.environ.get("DB_HOST")
+DB_PORT = os.environ.get("DB_PORT")
+DB_NAME = os.environ.get("DB_NAME")
 
 # Function to get the schema from the database
 # TODO - make it reusable by having the table connection details and table name as parameters
@@ -63,13 +73,16 @@ def get_llm_response(question: str, chatHistory) -> str:
 
     # Define the system message
     system_message = (f"You are a nice assistant. You are trained to generate SQL queries for Redash based on user's questions. "
-                      f"For context, here is the chat history with you and the user: {chatHistory}. "
                       f"An example is this: {sql_query_example}. But the response could differ and may not be exactly like that. "
                       f"Just note that the table names are enclosed in double quotations and the part after 'FROM' if we have the schema name. \n"
                       f"You are not to make up any information, if you don't know, say 'I don't know'. "
+                      f"Ensure you only provide a SQL query as a response without any punctutations, just plain SQL statement"
                       f"The date field has values in this format: YYYY-MM-DD. "
+                      f"Avoid something like this: SQL Query: SELECT * FROM youtube_data_schema.youtube_chart_data."
+                      f"Only start with SELECT statement without adding anything like 'SQL Query:'."
                       f"You will be given a schema with the table names and columns, do not deviate from the schema given and maintain the casing of the column names as provided in the schema."
                       f"Make sure you provide the correct SQL query with the correct format after FROM part like this: 'FROM youtube_data_schema.youtube_chart_data'."
+                      f"Only give the first 10 results if the query is a SELECT statement for better visualizations."
                       f"You have access to the youtube database with the following schema:\n") + schema
 
     # Create a SystemMessagePromptTemplate from the system message
@@ -82,7 +95,7 @@ def get_llm_response(question: str, chatHistory) -> str:
 
     # Invoke the chain to get a response from the model
     answer = llm_chain.invoke(question)
-    answer = filter_llm_answer(answer)
+    # answer = filter_llm_answer(answer)
     return answer
 
 ######################
@@ -103,3 +116,52 @@ def process_results(results):
         processed_results.append(processed_row)
 
     return processed_results
+
+
+def get_column_names_from_query(query):
+    import psycopg2
+
+    # Connect to your database
+    conn = psycopg2.connect(
+        dbname=DB_NAME,
+        user=DB_USER,
+        password=DB_PASSWORD,
+        host=DB_HOST,
+        port=DB_PORT
+    )
+
+    # Create a cursor object
+    cur = conn.cursor()
+
+    # Execute your query
+    cur.execute(query)
+
+    # Get column names
+    column_names = [desc[0] for desc in cur.description]
+
+    return column_names
+
+
+def get_y_axis_columns(query):
+    column_names = get_column_names_from_query(query)
+    # Assuming column_names is your list of column names
+    date_index = column_names.index('date')  # Find the index of 'date'
+    x_axis = column_names[date_index]  # Assign 'date' to x-axis
+
+    # Assign the remaining columns to y-axis
+    y_axis_column_names = column_names[:date_index] + column_names[date_index + 1:]
+    return y_axis_column_names
+
+def get_y_axis(query):
+    y_axis_column_names = get_y_axis_columns(query)
+    y_axis = []
+    for column_name in y_axis_column_names:
+        label = column_name.replace('_', ' ')  # Replace underscore with space
+
+        y_axis.append({
+            "name": column_name,
+            "type": "column",
+            "label": label
+        })
+
+    return y_axis
