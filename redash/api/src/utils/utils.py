@@ -50,7 +50,7 @@ def filter_llm_answer(answer: str) -> str:
 
     return sql_statement
 
-def get_llm_response(question: str) -> str:
+def get_llm_response(question: str, chatHistory) -> str:
     api_key = os.environ.get("OPENAI_API_KEY")
 
     # Initialize the OpenAI object
@@ -63,6 +63,7 @@ def get_llm_response(question: str) -> str:
 
     # Define the system message
     system_message = (f"You are a nice assistant. You are trained to generate SQL queries for Redash based on user's questions. "
+                      f"For context, here is the chat history with you and the user: {chatHistory}. "
                       f"An example is this: {sql_query_example}. But the response could differ and may not be exactly like that. "
                       f"Just note that the table names are enclosed in double quotations and the part after 'FROM' if we have the schema name. \n"
                       f"You are not to make up any information, if you don't know, say 'I don't know'. "

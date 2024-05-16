@@ -1,11 +1,11 @@
-import React,{ useState} from 'react'
+import React, {useState} from 'react'
 import redashpng from "@/assets/images/favicon-96x96.png";
 import './chatbox.less'
 import Chat from '@/services/chat';
-import { IoCopy } from "react-icons/io5";
-import { FaCheck } from "react-icons/fa6";
+import {IoCopy} from "react-icons/io5";
+import {FaCheck} from "react-icons/fa6";
 import SyntaxHighlighter from 'react-syntax-highlighter';
-import { docco } from 'react-syntax-highlighter/dist/esm/styles/hljs';
+import {docco} from 'react-syntax-highlighter/dist/esm/styles/hljs';
 import copy from 'copy-to-clipboard';
 
 
@@ -22,7 +22,7 @@ export default function ChatBox() {
   };
 
   function handleChatInput() {
-    const data = { sender: "user", text: input };
+    const data = {sender: "user", text: input};
     if (input !== "") {
       setChatHistory((history) => [...history, data]);
       chatWithOpenai(input);
@@ -32,28 +32,36 @@ export default function ChatBox() {
 
   async function chatWithOpenai(text) {
     const requestOptions = {
-        question: text,
-        chatHistory: chatHistory
+      question: text,
+      chatHistory: chatHistory
     };
     const response = await Chat.openai(requestOptions);
     console.log(response)
 
-    const data = {
-      sender: "bot",
-      text: response.answer
-    };
-     setChatHistory((history) => [...history, data]);
-     setInput("");
+    if (response.statusCode === 200) {
+      const data = {
+        sender: "bot",
+        text: response.answer
+      };
+    } else if (response.statusCode === 500) {
+      const data = {
+        sender: "bot",
+        text: "I'm sorry, I didn't understand that. Could you please rephrase your question?"
+      };
+    }
+
+    setChatHistory((history) => [...history, data]);
+    setInput("");
   }
 
   const handleCopy = (content) => {
     copy(content);
-    const updatedCopiedStates = { ...copiedStates };
+    const updatedCopiedStates = {...copiedStates};
     updatedCopiedStates[content] = true;
     setCopiedStates(updatedCopiedStates);
 
     setTimeout(() => {
-      const revertedCopiedStates = { ...copiedStates };
+      const revertedCopiedStates = {...copiedStates};
       revertedCopiedStates[content] = false;
       setCopiedStates(revertedCopiedStates);
     }, 2000); // Change the duration (in milliseconds) as needed
@@ -84,7 +92,7 @@ export default function ChatBox() {
 
       if (match.index > lastIndex) {
         const textContent = answer.substring(lastIndex, match.index).trim();
-        parts.push({ type: 'text', content: textContent });
+        parts.push({type: 'text', content: textContent});
       }
 
       const lines = codeContent.split('\n');
@@ -94,14 +102,14 @@ export default function ChatBox() {
       const remainingCode = codeContent.substring(firstLineEndIndex).trim();
       const formattedCodeContent = formatingCode(remainingCode); // Process the remaining code through formatingCode function
 
-      parts.push({ type: 'code', firstWord, content: formattedCodeContent });
+      parts.push({type: 'code', firstWord, content: formattedCodeContent});
 
       lastIndex = match.index + match[0].length;
     }
 
     if (lastIndex < answer.length) {
       const textContent = answer.substring(lastIndex).trim();
-      parts.push({ type: 'text', content: textContent });
+      parts.push({type: 'text', content: textContent});
     }
 
     return parts;
@@ -109,9 +117,9 @@ export default function ChatBox() {
 
   return (
     <>
-      {open?
-      <div className='chatcontainer'>
-        <div>
+      {open ?
+        <div className='chatcontainer'>
+          <div>
             <div className='headbox'>
               <p>query, visualize with AI</p>
             </div>
@@ -135,16 +143,16 @@ export default function ChatBox() {
                                 {part.type === 'code' ? (
                                   <div className="">
                                     <div className='chat-head'>
-                                        <div className='copy' onClick={() => handleCopy(part.content)}>
-                                          {copiedStates[part.content] ? (
-                                            <FaCheck className='check'/>
-                                          ) : (
-                                            <IoCopy className='copyicon'/>
-                                          )}
-                                        </div>
-                                        <div className=''>
-                                          {part.firstWord}
-                                        </div>
+                                      <div className='copy' onClick={() => handleCopy(part.content)}>
+                                        {copiedStates[part.content] ? (
+                                          <FaCheck className='check'/>
+                                        ) : (
+                                          <IoCopy className='copyicon'/>
+                                        )}
+                                      </div>
+                                      <div className=''>
+                                        {part.firstWord}
+                                      </div>
                                     </div>
                                     <SyntaxHighlighter
                                       language={part.firstWord}
@@ -179,20 +187,20 @@ export default function ChatBox() {
 
             <div className='inputbox'>
               <input
-                  className="input"
-                  type="text"
-                  value={input}
-                  placeholder="Type your message…"
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => handler(e)}
+                className="input"
+                type="text"
+                value={input}
+                placeholder="Type your message…"
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => handler(e)}
               />
             </div>
+          </div>
         </div>
-      </div>
-      :null}
+        : null}
 
-      <div className='iconbox' onClick={()=>setOpen(!open)}>
-         <img alt="charimage" src={redashpng} className="icon" />
+      <div className='iconbox' onClick={() => setOpen(!open)}>
+        <img alt="charimage" src={redashpng} className="icon"/>
       </div>
     </>
   )

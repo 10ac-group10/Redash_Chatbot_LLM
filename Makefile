@@ -107,3 +107,7 @@ bash:
 
 create_youtube_database:
 	docker compose exec -u postgres postgres psql postgres -c "CREATE DATABASE youtube_data;"
+	make create_youtube_data_schema
+
+create_youtube_data_schema:
+	docker compose exec -u postgres postgres psql youtube_data -c "CREATE SCHEMA IF NOT EXISTS youtube_data_schema;"
