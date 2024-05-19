@@ -10,6 +10,9 @@ from utils.chat_history import save_chat_history_redis, get_chat_history_redis
 from redash_toolbelt import Redash
 from redashAPI import RedashAPIClient
 
+logging.basicConfig(filename='test.log', format='%(filename)s: %(message)s',
+                    level=logging.DEBUG)
+
 load_dotenv()
 
 # TODO - Add the Redash API Key to the .env file whenever the user logs in or creates account
@@ -43,13 +46,17 @@ query_example = "SELECT content_type_Videos, device_type_mobile_phone, date FROM
 def create_pg_database():
     try:
         data_sources = redash.get_data_sources()
-        # RedashApi.create_data_source("pg",'Postgres Youtube',{
-        #     "dbname": "youtube_data",
-        #     "host": "postgres",
-        #     "user": "postgres",
-        #     "passwd": "postgres",
-        #     "port": "5432"
-        # })
+        RedashApi.post('data_sources', {
+            "name": "POSTGRES YOUTUBE DATABASE",
+            "type": "pg",
+            "options": {
+                "dbname": "youtube_data",
+                "host": "postgres",
+                "user": "postgres",
+                "passwd": "postgres",
+                "port": 5432
+            }
+        })
         logging.info(data_sources)
 
     except Exception as e:
