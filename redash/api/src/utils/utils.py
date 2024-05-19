@@ -1,9 +1,15 @@
+import logging
+
 import psycopg2
 import os
 from dotenv import load_dotenv
 from langchain_openai import OpenAI
 from langchain_core.prompts import SystemMessagePromptTemplate
 import json
+import logging
+
+logging.basicConfig(filename='test.log', format='%(filename)s: %(message)s',
+                    level=logging.DEBUG)
 
 load_dotenv()
 
@@ -70,7 +76,14 @@ def get_llm_response(question: str, chatHistory) -> str:
     # Get the schema of the youtube_data database
     schema = get_schema()
 
-    chatHistory = json.dumps(chatHistory)
+    # chatHistory = json.loads(chatHistory)
+    #
+    # # chat_history_string = ""
+    # # for item in chatHistory:
+    # #     chat_history_string += "sender " + item["sender"] + ", text " + item["text"] + "\n"
+    # #
+    # logging.info(type(chatHistory))
+    # logging.info(chatHistory)
 
     sql_query_example = "SELECT date, content_type_videos, device_type_mobile_phone FROM youtube_data_schema.youtube_chart_data"
 
