@@ -13,9 +13,6 @@ from src.utils import get_schema
 
 load_dotenv()
 
-
-# VARIABLE_KEY = os.environ.get("OPENAI_API_KEY")
-
 def filter_llm_answer(answer: str) -> str:
     # Find the index of "System:"
     system_index = answer.find("System:")

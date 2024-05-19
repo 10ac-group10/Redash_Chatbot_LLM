@@ -1,11 +1,10 @@
 import logging
+import os
 
 import psycopg2
-import os
 from dotenv import load_dotenv
-from langchain_openai import OpenAI
 from langchain_core.prompts import SystemMessagePromptTemplate
-import logging
+from langchain_openai import OpenAI
 
 logging.basicConfig(filename='test.log', format='%(filename)s: %(message)s',
                     level=logging.DEBUG)
@@ -18,6 +17,7 @@ DB_PASSWORD = os.environ.get("DB_PASSWORD")
 DB_HOST = os.environ.get("DB_HOST")
 DB_PORT = os.environ.get("DB_PORT")
 DB_NAME = os.environ.get("DB_NAME")
+
 
 # Function to get the schema from the database
 # TODO - make it reusable by having the table connection details and table name as parameters
@@ -57,6 +57,7 @@ def get_schema():
 
     return schema
 
+
 def filter_llm_answer(answer: str) -> str:
     # Find the index of "System:"
     system_index = answer.find("System:")
@@ -65,6 +66,7 @@ def filter_llm_answer(answer: str) -> str:
     sql_statement = answer[system_index + len("System:"):].strip()
 
     return sql_statement
+
 
 def get_llm_response(question: str, chatHistory) -> str:
     api_key = os.environ.get("OPENAI_API_KEY")
@@ -87,19 +89,20 @@ def get_llm_response(question: str, chatHistory) -> str:
     sql_query_example = "SELECT date, content_type_videos, device_type_mobile_phone FROM youtube_data_schema.youtube_chart_data"
 
     # Define the system message
-    system_message = (f"You are a nice assistant. You are trained to generate SQL queries for Redash based on user's questions. "
-                      f"An example is this: {sql_query_example}. But the response could differ and may not be exactly like that. "
-                      f"Just note that the table names are enclosed in double quotations and the part after 'FROM' if we have the schema name. \n"
-                      f"You are not to make up any information, if you don't know, say 'I don't know'. "
-                      f"Ensure you only provide a SQL query as a response without any punctutations, just plain SQL statement"
-                      f"The date field has values in this format: YYYY-MM-DD. "
-                      f"Avoid something like this: SQL Query: SELECT * FROM youtube_data_schema.youtube_chart_data."
-                      f"Only start with SELECT statement without adding anything like 'SQL Query:'."
-                      f"And DO NOT RETURN and query with punctuation marks irrelevant like ?"
-                      f"You will be given a schema with the table names and columns, do not deviate from the schema given and maintain the casing of the column names as provided in the schema."
-                      f"Make sure you provide the correct SQL query with the correct format after FROM part like this: 'FROM youtube_data_schema.youtube_chart_data'."
-                      f"Only give the first 10 results if the query is a SELECT statement for better visualizations."
-                      f"You have access to the youtube database with the following schema:\n") + schema
+    system_message = (
+                         f"You are a nice assistant. You are trained to generate SQL queries for Redash based on user's questions. "
+                         f"An example is this: {sql_query_example}. But the response could differ and may not be exactly like that. "
+                         f"Just note that the table names are enclosed in double quotations and the part after 'FROM' if we have the schema name. \n"
+                         f"You are not to make up any information, if you don't know, say 'I don't know'. "
+                         f"Ensure you only provide a SQL query as a response without any punctutations, just plain SQL statement"
+                         f"The date field has values in this format: YYYY-MM-DD. "
+                         f"Avoid something like this: SQL Query: SELECT * FROM youtube_data_schema.youtube_chart_data."
+                         f"Only start with SELECT statement without adding anything like 'SQL Query:'."
+                         f"And DO NOT RETURN and query with punctuation marks irrelevant like ?"
+                         f"You will be given a schema with the table names and columns, do not deviate from the schema given and maintain the casing of the column names as provided in the schema."
+                         f"Make sure you provide the correct SQL query with the correct format after FROM part like this: 'FROM youtube_data_schema.youtube_chart_data'."
+                         f"Only give the first 10 results if the query is a SELECT statement for better visualizations."
+                         f"You have access to the youtube database with the following schema:\n") + schema
 
     # Create a SystemMessagePromptTemplate from the system message
     prompt = (
@@ -113,6 +116,7 @@ def get_llm_response(question: str, chatHistory) -> str:
     answer = llm_chain.invoke(question)
     # answer = filter_llm_answer(answer)
     return answer
+
 
 ######################
 # CELERY
@@ -167,6 +171,7 @@ def get_y_axis_columns(query):
     # Assign the remaining columns to y-axis
     y_axis_column_names = column_names[:date_index] + column_names[date_index + 1:]
     return y_axis_column_names
+
 
 def get_y_axis(query):
     y_axis_column_names = get_y_axis_columns(query)

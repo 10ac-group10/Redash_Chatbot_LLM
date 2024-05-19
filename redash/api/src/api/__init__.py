@@ -8,7 +8,7 @@ from quart import Quart, request, jsonify
 from redashAPI import RedashAPIClient
 from redash_toolbelt import Redash
 from utils.chat_history import save_chat_history_redis, get_chat_history_redis
-from utils.utils import get_schema, get_llm_response, get_y_axis
+from utils.utils import get_llm_response, get_y_axis
 
 logging.basicConfig(filename='test.log', format='%(filename)s: %(message)s',
                     level=logging.DEBUG)
@@ -86,8 +86,6 @@ async def echo():
 @app.route('/api/chat', methods=['POST'])
 async def handle_user_question():
     try:
-        schema = get_schema()
-
         value = await request.get_json()
         question = value.get('question')
         chatHistory = value.get('chatHistory')
@@ -158,12 +156,6 @@ async def get_queries():
     logging.info(REDASH_API_KEY)
     queries = redash.get_data_sources()
     return jsonify(queries), 200
-
-
-# @app.route('/api/chat/query', methods=['post'])
-# async def create_dashboard_with_visualizations():
-#     queries = redash.create_query()
-#     return jsonify(queries), 200
 
 
 @app.route('/api/chat/query_results', methods=['post'])
@@ -250,79 +242,5 @@ def visualize(query: str):
 
     return ids
 
-# @app.route('/api/chat/visualize', methods=['post'])
-# async def visualize(query: str):
-#     value = await request.get_json()
-#     query = value.get('query')
-#
-#     results = RedashApi.create_query(1, "Query 1", query)
-#     data = results.json()
-#
-#     query_id = data.get('id')
-#
-#     logging.info(query_id)
-#
-#     visualization_results = RedashApi.create_visualization(
-#         query_id,
-#         "column",
-#         "Youtube visualizations",
-#         x_axis="date",
-#         y_axis=[
-#             {
-#                 "name": "Content type_Videos",
-#                 "type": "column",
-#                 "label": "Geography DE"
-#             },
-#             {
-#                 "name": "Device type_Mobile phone",
-#                 "type": "column",
-#                 "label": "Mobile Phone Views"
-#             }
-#         ]
-#     )
-#
-#     # Get the visualization id
-#     viz_id = visualization_results.json().get('id')
-#
-#     # Create the dashboard for where to add visualizations
-#     dashboard_results = RedashApi.create_dashboard(
-#         "Youtube Data Dashboard",
-#     )
-#
-#     # Get the dashboard id
-#     ds_id = dashboard_results.json().get('id')
-#
-#
-#     # Widget for the visualization
-#     widget_results = redash.create_widget(
-#         ds_id,
-#         viz_id,
-#         "The youtube views visualization results",
-#         options={}
-#     )
-#
-#     ids = {
-#         "query_id": query_id,
-#         "visualization_id": viz_id,
-#         "dashboard_id": ds_id,
-#         # "widget_id": widget_results.json().get('id')
-#     }
-#
-#     return jsonify(ids), 200
-
-
 # TODO - Add quart schema
 # TODO - Perform Testing
-####################################################
-# CELERY TASKS IMPLEMENTATION - REDASH API
-####################################################
-
-
-# @app.route('/api/chat/start_task', methods=['post'])
-# async def start_task():
-#     value = await request.get_json()
-#     query = value.get('query')
-#     task = long_running_taks.delay(query)
-#     return jsonify({"task_id": task.id}), 200
-
-# Example of processing the results
