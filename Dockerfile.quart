@@ -2,9 +2,9 @@ FROM python:3.9
 
 WORKDIR /app
 
-COPY redash/api/requirements.txt ./
+COPY quart-server/requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY redash/api/src ./
+COPY quart-server/ ./
 
 CMD ["hypercorn", "api:app", "-b", "0.0.0.0:5057"]

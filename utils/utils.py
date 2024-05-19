@@ -1,6 +1,8 @@
+import os
+
 import pandas as pd
 import psycopg2
-import os
+
 
 # fetch data from google drive reusable function
 # TODO - make is reusable further by having the entire path as a parameter

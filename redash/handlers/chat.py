@@ -8,7 +8,7 @@ from langchain_openai import OpenAI
 from redash.handlers.base import (
     BaseResource
 )
-from src.decorators import disable_csrf_check
+from redash.handlers.decorators import disable_csrf_check
 from src.utils import get_schema
 
 load_dotenv()

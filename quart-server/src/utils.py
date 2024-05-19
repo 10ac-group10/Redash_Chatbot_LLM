@@ -166,7 +166,7 @@ def get_y_axis_columns(query):
     column_names = get_column_names_from_query(query)
     # Assuming column_names is your list of column names
     date_index = column_names.index('date')  # Find the index of 'date'
-    x_axis = column_names[date_index]  # Assign 'date' to x-axis
+    # x_axis = column_names[date_index]  # Assign 'date' to x-axis
 
     # Assign the remaining columns to y-axis
     y_axis_column_names = column_names[:date_index] + column_names[date_index + 1:]

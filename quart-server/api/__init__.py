@@ -7,8 +7,8 @@ from openai import OpenAI
 from quart import Quart, request, jsonify
 from redashAPI import RedashAPIClient
 from redash_toolbelt import Redash
-from utils.chat_history import save_chat_history_redis, get_chat_history_redis
-from utils.utils import get_llm_response, get_y_axis
+from src.chat_history import save_chat_history_redis, get_chat_history_redis
+from src.utils import get_llm_response, get_y_axis
 
 logging.basicConfig(filename='test.log', format='%(filename)s: %(message)s',
                     level=logging.DEBUG)

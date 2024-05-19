@@ -4,7 +4,7 @@ from celery import Celery
 from celery import Task
 from dotenv import load_dotenv
 from redashAPI import RedashAPIClient
-from utils.utils import process_results
+from src.utils import process_results
 
 # load the .env file
 load_dotenv()
