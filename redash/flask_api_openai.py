@@ -1,18 +1,20 @@
-from flask import Flask, render_template, request
+import os
 
 import openai
-import os
+from flask import Flask, render_template, request
 
 app = Flask(__name__)
 
 # Set up OpenAI API credentials
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
+
 # Define the default route to return the index.html file
 
 @app.route("/")
 def index():
     return render_template("index.html")
+
 
 # Define the route to return the index.html file
 @app.route("/chat", methods=["POST"])
@@ -31,6 +33,7 @@ def api():
     )
     # Return the response from the API
     return completion.choices[0].message.content
+
 
 if __name__ == "__main__":
     app.run()

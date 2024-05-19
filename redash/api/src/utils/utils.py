@@ -5,7 +5,6 @@ import os
 from dotenv import load_dotenv
 from langchain_openai import OpenAI
 from langchain_core.prompts import SystemMessagePromptTemplate
-import json
 import logging
 
 logging.basicConfig(filename='test.log', format='%(filename)s: %(message)s',

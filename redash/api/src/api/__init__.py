@@ -1,14 +1,14 @@
-from quart import Quart, request, jsonify
-from dotenv import load_dotenv
-import psycopg2
-import os
-from openai import OpenAI
 import logging
-from utils.utils import get_schema, get_llm_response, get_y_axis
-from utils.chat_history import save_chat_history_redis, get_chat_history_redis
+import os
 
-from redash_toolbelt import Redash
+import psycopg2
+from dotenv import load_dotenv
+from openai import OpenAI
+from quart import Quart, request, jsonify
 from redashAPI import RedashAPIClient
+from redash_toolbelt import Redash
+from utils.chat_history import save_chat_history_redis, get_chat_history_redis
+from utils.utils import get_schema, get_llm_response, get_y_axis
 
 logging.basicConfig(filename='test.log', format='%(filename)s: %(message)s',
                     level=logging.DEBUG)
@@ -33,7 +33,6 @@ redash = Redash(REDASH_URL, REDASH_API_KEY)
 RedashApi = RedashAPIClient(REDASH_API_KEY, REDASH_URL)
 logging.info(REDASH_API_KEY)
 
-
 app = Quart(__name__)
 
 # Set the logging level to INFO so that we can see the logs in the console
@@ -41,6 +40,7 @@ logging.basicConfig(level=logging.INFO)
 
 # FOR TESTING PURPOSES
 query_example = "SELECT content_type_Videos, device_type_mobile_phone, date FROM youtube_data_schema.youtube_chart_data LIMIT 10;"
+
 
 # Make a simple API request to check if the Redash instance is working
 def create_pg_database():
@@ -64,20 +64,24 @@ def create_pg_database():
         logging.error(e)
         print(f"An error occurred while checking the Redash instance: {e}")
 
+
 def run() -> None:
     create_pg_database()
     app.run(port=5057)
+
 
 client = OpenAI(api_key=VARIABLE_KEY)
 
 create_pg_database()
 
+
 @app.route('/api/chat/echo')
 async def echo():
     value = await request.get_json()
     question = value.get('question')
-    response_data = {"answer": question }
+    response_data = {"answer": question}
     return jsonify(response_data), 200
+
 
 @app.route('/api/chat', methods=['POST'])
 async def handle_user_question():
@@ -148,11 +152,13 @@ async def handle_user_question():
         logging.error(error)
         return jsonify({"answer": query, "dashboard_id": None, "chatHistory": chatHistory}), 200
 
+
 @app.route('/api/chat/redash/data_sources', methods=['get'])
 async def get_queries():
     logging.info(REDASH_API_KEY)
     queries = redash.get_data_sources()
     return jsonify(queries), 200
+
 
 # @app.route('/api/chat/query', methods=['post'])
 # async def create_dashboard_with_visualizations():
@@ -171,6 +177,7 @@ async def get_query_results():
 
     return jsonify(results), 200
 
+
 @app.route('/api/chat/results', methods=['post'])
 async def get_results():
     value = await request.get_json()
@@ -180,6 +187,7 @@ async def get_results():
     results = RedashApi.query_and_wait_result(1, query)
 
     return jsonify(results), 200
+
 
 @app.route('/api/chat/query', methods=['post'])
 async def create_query():
@@ -224,7 +232,6 @@ def visualize(query: str):
     ds_id = dashboard_results.json().get('id')
     logging.info(ds_id)
 
-
     # Widget for the visualization
     widget_results = redash.create_widget(
         ds_id,
@@ -242,7 +249,6 @@ def visualize(query: str):
     }
 
     return ids
-
 
 # @app.route('/api/chat/visualize', methods=['post'])
 # async def visualize(query: str):
@@ -305,15 +311,11 @@ def visualize(query: str):
 #     return jsonify(ids), 200
 
 
-
-
 # TODO - Add quart schema
 # TODO - Perform Testing
 ####################################################
 # CELERY TASKS IMPLEMENTATION - REDASH API
 ####################################################
-
-
 
 
 # @app.route('/api/chat/start_task', methods=['post'])

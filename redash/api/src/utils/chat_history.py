@@ -1,5 +1,7 @@
-import redis
 import json
+
+import redis
+
 
 def save_chat_history_redis(chat_history):
     # Connect to your Redis server
@@ -10,6 +12,7 @@ def save_chat_history_redis(chat_history):
 
     # Store the chat history in Redis
     r.set('chat_history', chat_history_json)
+
 
 def get_chat_history_redis():
     # Connect to your Redis server

@@ -1,16 +1,18 @@
+import os
+
 from dotenv import load_dotenv
 from flask import request, jsonify
+from langchain_core.prompts import SystemMessagePromptTemplate
+from langchain_openai import OpenAI
+
 from redash.handlers.base import (
     BaseResource
 )
-import os
-from langchain_openai import OpenAI
-from langchain_core.prompts import SystemMessagePromptTemplate
-
-from src.utils import get_schema
 from src.decorators import disable_csrf_check
+from src.utils import get_schema
 
 load_dotenv()
+
 
 # VARIABLE_KEY = os.environ.get("OPENAI_API_KEY")
 
@@ -22,6 +24,7 @@ def filter_llm_answer(answer: str) -> str:
     sql_statement = answer[system_index + len("System:"):].strip()
 
     return sql_statement
+
 
 def get_llm_response(question: str) -> str:
     api_key = os.environ.get("OPENAI_API_KEY")
@@ -49,6 +52,7 @@ def get_llm_response(question: str) -> str:
     answer = llm_chain.invoke(question)
     answer = filter_llm_answer(answer)
     return answer
+
 
 class ChatResource(BaseResource):
     @disable_csrf_check
