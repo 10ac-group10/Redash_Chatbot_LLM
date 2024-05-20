@@ -1,6 +1,6 @@
 ## Introduction
 
-The Redash ChatGPT Plugin is an integration that brings natural language conversation capabilities powered by ChatGPT to your Redash dashboard. With this plugin, Redash users can engage in interactive and conversational queries, as well as visualize data directly from the chat interface.
+The Redash Chatbot LLM is an integration that brings natural language conversation capabilities powered by ChatGPT to your Redash dashboard. With the chatbot plugin, Redash users can engage in interactive and conversational queries, as well as visualize data directly from the chat interface.
 
 ## Features
 
