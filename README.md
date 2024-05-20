@@ -90,7 +90,18 @@ pip install -r requirements.txt
    ![login page](./screenshots/login_page.png "Redash Setup Page")
    - Fill in the required details and click on the `Setup` button to create an account.
 
-8. **Get the Redash API Key**
+8. **Explore the Redash homepage**
+   - After creating an account, you will be redirected to the Redash homepage.
+   - Here is how the Redash homepage looks like:
+   ![redash homepage](./screenshots/homepage.png "Redash Homepage")
+   - You can explore the Redash homepage and familiarize yourself with the different features and functionalities available.
+   - **Note**: The Redash Chatbot LLM plugin is integrated into the Redash interface, allowing users to interact with ChatGPT directly from the chat interface.
+   - The chatbot icon is located at the bottom right corner of the page. Click on the icon to open the chat interface and start interacting with ChatGPT.
+   - After submitting a question, the chatbot will return a query result in the chat interface. Here's an example of a chatbot response displaying a query:
+   ![chatbot](./screenshots/chatbot_example.png "Chatbot")
+   - **Note**: We have get the redash api key and create data source for automated visualizations. These will be done in the next steps.
+
+9. **Get the Redash API Key**
    - After creating an account, you will be redirected to the Redash homepage.
    - Click on the settings icon at the bottom left corner of the page.
    - Navigate to the `Account` tab.
@@ -102,3 +113,30 @@ pip install -r requirements.txt
     REDASH_API_KEY=your_redash_api_key
    ```
 
+10. **Create a Data Source**
+    - To create a data source, click on the settings icon at the bottom left corner of the page.
+    - Navigate to the `Data Sources` tab.
+    - Click on the `New Data Source` button.
+    - Select the appropriate data source type (e.g., PostgreSQL, MySQL, etc.).
+    - Fill in the required details for the data source configuration.
+    - Click on the `Save` button to create the data source.
+    - Click on the `Test Connection` button to verify that the data source is connected successfully.
+    - **Note**: The data source is required for querying and visualizing data in Redash. The Redash Chatbot LLM plugin allows users to interact with ChatGPT to generate queries and visualize the results directly within the chat interface.
+
+
+Now you have successfully set up the Redash Chatbot LLM plugin and can start interacting with ChatGPT to query and visualize data in Redash.
+
+## Conclusion
+The Redash Chatbot LLM plugin is an innovative integration that enhances the user experience by providing natural language conversation capabilities powered by ChatGPT. With the plugin, users can engage in interactive queries, receive informative responses, and visualize data directly within the chat interface. This integration streamlines the data exploration and analysis process, making it more intuitive and user-friendly. By following the installation steps outlined in this guide, you can set up the Redash Chatbot LLM plugin and start leveraging the power of ChatGPT in your Redash dashboard.
+
+## References
+- [Redash ChatGPT Plugin by *Rehmet Yeshanew*](https://github.com/RYees/redash-chatgpt-plugin?tab=readme-ov-file)
+- [Redash API Client](https://github.com/damienzeng73/redash-api-client)
+- [OpenAI API Documentation](https://beta.openai.com/docs/)
+- [Asynchronous with OpenAI and Celery in Redash](https://github.com/RYees/Asynchronous_OpenAI_-Streaming_Execution)
+- [Langchain LLM integration](https://python.langchain.com/v0.1/docs/integrations/llms/openai/)
+
+
+## License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+```
