@@ -1,22 +1,24 @@
 ## Introduction
 
-The Redash Chatbot LLM is an integration that brings natural language conversation capabilities powered by ChatGPT to your Redash dashboard. With the chatbot plugin, Redash users can engage in interactive and conversational queries, as well as visualize data directly from the chat interface.
+The Redash Chatbot LLM is an innovative integration that brings the power of OpenAI's ChatGPT model to your Redash dashboard. This integration allows users to interact with their Redash dashboards using natural language queries, making data exploration and analysis more intuitive and user-friendly. The Redash Chatbot LLM plugin provides conversational query capabilities, automated data visualization, and seamless integration with Redash. The project leverages Docker for easy setup and deployment, making it easy for users to get started with the integration.
 
 ## Features
 
-* Conversational Queries: Users can interact with Redash using natural language queries, making the process more intuitive and user-friendly.
-* Interactive Responses: ChatGPT generates human-like responses, providing users with informative and contextual feedback on their queries.
-* Data Visualization: The plugin allows users to visualize query results directly within the chat interface, enabling faster data exploration and analysis.
+- **Conversational Queries**: The integration allows users to interact with their Redash dashboards using natural language queries. This makes the process of data exploration and analysis more intuitive and user-friendly.
 
-`The Redash ChatGPT Plugin is an exciting project that aims to integrate natural language conversation capabilities powered by ChatGPT into your Redash dashboard. Although the plugin is still a work in progress, it currently provides functionality for engaging in conversational queries with ChatGPT directly within the Redash interface`
+- **Automated data Visualization**: The integration allows users to visualize query results directly within the chat interface. This feature enables faster data exploration and analysis.
+
+- **Integration with Redash**: The project is designed to work seamlessly with Redash, allowing users to leverage the full power of this popular open-source data visualization tool.
+
+- **Docker Support**: The project leverages Docker for easy setup and deployment. This makes it easy for users to get the project up and running on their own systems.
 
 ## Requirements Before Installation
-- Docker
-- Docker Compose
-- Node.js
-- Yarn
-- Python >= 3.9 and <= 3.10.2
-- Poetry
+  - Docker: This is used for creating, deploying, and running applications by using containers.
+  - Docker Compose: This is a tool for defining and managing multi-container Docker applications.
+  - Node.js: This is a JavaScript runtime built on Chrome's V8 JavaScript engine.
+  - Yarn: This is a package manager that doubles down as project manager.
+  - Python: The project requires a Python version that is greater than or equal to 3.9 and less than or equal to 3.10.2.
+  - Poetry: This is a tool for dependency management and packaging in Python.
 
 ### Setup and Installation
 1. **Clone the Repository**
@@ -27,7 +29,7 @@ The Redash Chatbot LLM is an integration that brings natural language conversati
 
 2. **Create a Virtual Environment and Install Dependencies**
 ```bash
-python -m venv venv
+python3.10 -m venv venv
 source venv/bin/activate  # For Unix or MacOS
 venv\Scripts\activate     # For Windows
 pip install -r requirements.txt
